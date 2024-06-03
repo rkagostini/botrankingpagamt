@@ -159,7 +159,7 @@ top_users = session.query(
         timer.start()
         return
     
-    leaderboard_text = "🏆 Top Convidadores 🏆\n:\n" + "\n".join([f'<a href="tg://user?id={user.id}">{user.nome_completo} ({user.username})</a>: {user.invite_count}' for user in top_users])
+    leaderboard_text = "🏆 Top Convidadores 🏆\n\n" + "\n".join([f'<a href="tg://user?id={user.id}">{user.nome_completo} ({user.username})</a>: {user.invite_count}' for user in top_users])
     try:
         bot.send_message(chat_id=-1001961959701, text=leaderboard_text, parse_mode='HTML')  # envio da mensagem
     except:
