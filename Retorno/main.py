@@ -112,17 +112,15 @@ def handle_manual_ranking(message):
         bot.send_message(message.chat.id, "Você não está cadastrado no sistema. Utilize o comando /start para se cadastrar.")
         return
     if usuario.is_bot_owner or usuario.is_bot_admin:
-    top_users = session.query(
-    TelegramUser.id,
-    TelegramUser.nome_completo,
-    TelegramUser.username,
-    func.count(TelegramInvite.id).label('invite_count')
-    ).join(TelegramInvite, TelegramUser.id == TelegramInvite.user_id) \
-    .join(InviteConfirmation, TelegramInvite.id == InviteConfirmation.invite_id) \
-    .filter(InviteConfirmation.status == 'confirmada') \
-    .group_by(TelegramUser.id, TelegramUser.nome_completo, TelegramUser.username) \
-    .order_by(func.count(TelegramInvite.id).desc()) \
-    .limit(5).all()
+        top_users = session.query(
+        TelegramUser.id,
+        TelegramUser.nome_completo,
+        TelegramUser.username,
+        func.count(TelegramInvite.id).label('invite_count')
+        ).join(TelegramInvite, TelegramUser.id == TelegramInvite.user_id) \
+        .group_by(TelegramUser.id, TelegramUser.nome_completo, TelegramUser.username) \
+        .order_by(func.count(TelegramInvite.id).desc()) \
+        .limit(5).all()
 
         if not top_users:
             bot.send_message(message.chat.id, "Não há dados suficientes para exibir o ranking.")
