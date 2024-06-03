@@ -141,7 +141,7 @@ def send_leaderboard():
     if timer is not None:
         timer.cancel()  # Cancelar o temporizador atual para evitar instâncias duplicadas
     # Buscar os top 5 usuários
-top_users = session.query(
+    top_users = session.query(
     TelegramUser.id,
     TelegramUser.nome_completo,
     TelegramUser.username,
