@@ -80,7 +80,7 @@ def handle_generate(message):
         if not existing_invite:  # Se não existir, criamos um novo link de convite para o atribuir ao usuário.
             invite_link_response = bot.create_chat_invite_link(chat_id)
             invite_link = invite_link_response.invite_link
-            
+
             # Cria um novo registro no banco de dados para salvar esse link de convite
             new_invite = TelegramInvite(user_id=user_id, invite_code=invite_link)
             session.add(new_invite)
@@ -112,22 +112,24 @@ def handle_manual_ranking(message):
         bot.send_message(message.chat.id, "Você não está cadastrado no sistema. Utilize o comando /start para se cadastrar.")
         return
     if usuario.is_bot_owner or usuario.is_bot_admin:
-        top_users = session.query(
-        TelegramUser.id,
-        TelegramUser.nome_completo,
-        TelegramUser.username,
-        func.count(TelegramInvite.id).label('invite_count')
-        ).join(TelegramInvite, TelegramUser.id == TelegramInvite.user_id) \
-        .group_by(TelegramUser.id, TelegramUser.nome_completo, TelegramUser.username) \
-        .order_by(func.count(TelegramInvite.id).desc()) \
-        .limit(5).all()
+    top_users = session.query(
+    TelegramUser.id,
+    TelegramUser.nome_completo,
+    TelegramUser.username,
+    func.count(TelegramInvite.id).label('invite_count')
+    ).join(TelegramInvite, TelegramUser.id == TelegramInvite.user_id) \
+    .join(InviteConfirmation, TelegramInvite.id == InviteConfirmation.invite_id) \
+    .filter(InviteConfirmation.status == 'confirmada') \
+    .group_by(TelegramUser.id, TelegramUser.nome_completo, TelegramUser.username) \
+    .order_by(func.count(TelegramInvite.id).desc()) \
+    .limit(5).all()
 
         if not top_users:
             bot.send_message(message.chat.id, "Não há dados suficientes para exibir o ranking.")
             return
-        
+
         leaderboard_text = "🏆 Top Convidadores 🏆\n\n" + "\n".join([f'<a href="tg://user?id={user.id}">{user.nome_completo} ({user.username})</a>: {user.invite_count}' for user in top_users])
-        
+
         try:
             bot.send_message(chat_id=message.chat.id, text=leaderboard_text, parse_mode='HTML')
         except:
@@ -146,19 +148,19 @@ def send_leaderboard():
     TelegramUser.nome_completo,
     TelegramUser.username,
     func.count(TelegramInvite.id).label('invite_count')
-).join(TelegramInvite, TelegramUser.id == TelegramInvite.user_id) \
- .join(InviteConfirmation, TelegramInvite.id == InviteConfirmation.invite_id) \
- .filter(InviteConfirmation.status == 'confirmada') \
- .group_by(TelegramUser.id, TelegramUser.nome_completo, TelegramUser.username) \
- .order_by(func.count(TelegramInvite.id).desc()) \
- .limit(5).all()
-    
+    ).join(TelegramInvite, TelegramUser.id == TelegramInvite.user_id) \
+    .join(InviteConfirmation, TelegramInvite.id == InviteConfirmation.invite_id) \
+    .filter(InviteConfirmation.status == 'confirmada') \
+    .group_by(TelegramUser.id, TelegramUser.nome_completo, TelegramUser.username) \
+    .order_by(func.count(TelegramInvite.id).desc()) \
+    .limit(5).all()
+
     # Esta condicional verifica se existem usuários para enviar o ranking
     if top_users is None:
         timer = Timer(7200, send_leaderboard)  # Resetar o temporizador
         timer.start()
         return
-    
+
     leaderboard_text = "🏆 Top Convidadores 🏆\n\n" + "\n".join([f'<a href="tg://user?id={user.id}">{user.nome_completo} ({user.username})</a>: {user.invite_count}' for user in top_users])
     try:
         bot.send_message(chat_id=-1001961959701, text=leaderboard_text, parse_mode='HTML')  # envio da mensagem
@@ -176,7 +178,7 @@ def handle_message(message):
     # Verifica se a mensagem foi enviada em um chat privado
     if message.chat.type != 'private':
         return
-    
+
     user_id = message.from_user.id
     text = message.text
 
@@ -251,7 +253,7 @@ def handle_query(call):
         except:
             pass
         return  # Interrompe a execução para evitar confirmações duplicadas
-    
+
     status = check_user_membership(-1001961959701, confirmation.user_id)
     if not status:
         try:
@@ -274,7 +276,7 @@ def handle_query(call):
             joined_at=datetime.now(timezone.utc)
         )
         session.add(new_relation)
-        
+
         try:
             bot.send_message(invite.user_id, f'Seu convite para <a href="tg://user?id={confirmation.user_id}">{invited_user.nome_completo} ({invited_user.username})</a> foi confirmado!')
         except Exception as e:
@@ -289,7 +291,7 @@ def handle_query(call):
             bot.send_message(invite.user_id, f'O usuário <a href="tg://user?id={confirmation.user_id}">{invited_user.nome_completo} ({invited_user.username})</a> tentou utilizar o seu link de convite mas negou a confirmação!')
         except Exception as e:
             print(f"Erro ao enviar mensagem para o usuário {invite.user_id}: {str(e)}")
-    
+
     session.commit()
     try:
         bot.edit_message_text(
