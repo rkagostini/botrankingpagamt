@@ -1,0 +1,49 @@
+nohup: ignoring input
+2024-06-02 16:17:33,177 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2024-06-02 16:17:33,194 INFO sqlalchemy.engine.Engine SELECT telegram_users.id AS telegram_users_id, telegram_users.nome_completo AS telegram_users_nome_completo, telegram_users.username AS telegram_users_username, count(telegram_invites.id) AS invite_count 
+FROM telegram_users JOIN telegram_invites ON telegram_users.id = telegram_invites.user_id GROUP BY telegram_users.id, telegram_users.nome_completo, telegram_users.username ORDER BY count(telegram_invites.id) DESC
+ LIMIT ? OFFSET ?
+2024-06-02 16:17:33,194 INFO sqlalchemy.engine.Engine [generated in 0.00031s] (5, 0)
+O usuário 6431366426 é membro do chat -1001961959701.
+2024-06-02 16:17:35,096 INFO sqlalchemy.engine.Engine SELECT telegram_invites.id AS telegram_invites_id, telegram_invites.user_id AS telegram_invites_user_id, telegram_invites.invite_code AS telegram_invites_invite_code, telegram_invites.created_at AS telegram_invites_created_at 
+FROM telegram_invites 
+WHERE telegram_invites.user_id = ?
+ LIMIT ? OFFSET ?
+2024-06-02 16:17:35,096 INFO sqlalchemy.engine.Engine [generated in 0.00032s] (6431366426, 1, 0)
+O usuário 6297131636 é membro do chat -1001961959701.
+2024-06-02 16:45:24,627 INFO sqlalchemy.engine.Engine SELECT telegram_invites.id AS telegram_invites_id, telegram_invites.user_id AS telegram_invites_user_id, telegram_invites.invite_code AS telegram_invites_invite_code, telegram_invites.created_at AS telegram_invites_created_at 
+FROM telegram_invites 
+WHERE telegram_invites.user_id = ?
+ LIMIT ? OFFSET ?
+2024-06-02 16:45:24,627 INFO sqlalchemy.engine.Engine [cached since 1670s ago] (6297131636, 1, 0)
+Traceback (most recent call last):
+  File "/home/rk_impulsodigital/.local/lib/python3.10/site-packages/sqlalchemy/sql/base.py", line 2181, in _entity_namespace_key
+    return getattr(ns, key)  # type: ignore
+AttributeError: type object 'TelegramUser' has no attribute 'user_id'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/rk_impulsodigital/Retorno/main.py", line 303, in <module>
+    bot.polling(none_stop=True)
+  File "/home/rk_impulsodigital/.local/lib/python3.10/site-packages/telebot/__init__.py", line 1178, in polling
+    self.__threaded_polling(non_stop=non_stop, interval=interval, timeout=timeout, long_polling_timeout=long_polling_timeout,
+  File "/home/rk_impulsodigital/.local/lib/python3.10/site-packages/telebot/__init__.py", line 1253, in __threaded_polling
+    raise e
+  File "/home/rk_impulsodigital/.local/lib/python3.10/site-packages/telebot/__init__.py", line 1215, in __threaded_polling
+    self.worker_pool.raise_exceptions()
+  File "/home/rk_impulsodigital/.local/lib/python3.10/site-packages/telebot/util.py", line 150, in raise_exceptions
+    raise self.exception_info
+  File "/home/rk_impulsodigital/.local/lib/python3.10/site-packages/telebot/util.py", line 93, in run
+    task(*args, **kwargs)
+  File "/home/rk_impulsodigital/.local/lib/python3.10/site-packages/telebot/__init__.py", line 8449, in _run_middlewares_and_handler
+    result = handler['function'](message)
+  File "/home/rk_impulsodigital/Retorno/main.py", line 110, in handle_manual_ranking
+    usuario = session.query(TelegramUser).filter_by(id=user_id).first()
+  File "/home/rk_impulsodigital/.local/lib/python3.10/site-packages/sqlalchemy/orm/query.py", line 1983, in filter_by
+    clauses = [
+  File "/home/rk_impulsodigital/.local/lib/python3.10/site-packages/sqlalchemy/orm/query.py", line 1984, in <listcomp>
+    _entity_namespace_key(from_entity, key) == value
+  File "/home/rk_impulsodigital/.local/lib/python3.10/site-packages/sqlalchemy/sql/base.py", line 2183, in _entity_namespace_key
+    raise exc.InvalidRequestError(
+sqlalchemy.exc.InvalidRequestError: Entity namespace for "telegram_users" has no property "user_id"
