@@ -118,6 +118,8 @@ def handle_manual_ranking(message):
         TelegramUser.username,
         func.count(TelegramInvite.id).label('invite_count')
         ).join(TelegramInvite, TelegramUser.id == TelegramInvite.user_id) \
+        .join(InviteConfirmation, TelegramInvite.id == InviteConfirmation.invite_id) \
+        .filter(InviteConfirmation.status == 'confirmada') \
         .group_by(TelegramUser.id, TelegramUser.nome_completo, TelegramUser.username) \
         .order_by(func.count(TelegramInvite.id).desc()) \
         .limit(5).all()
