@@ -278,7 +278,7 @@ def handle_query(call):
         session.add(new_relation)
 
         try:
-            bot.send_message(invite.user_id, f'Seu convite para <a href="tg://user?id={confirmation.user_id}">{invited_user.nome_completo} ({invited_user.username})</a> foi confirmado!')
+            bot.send_message(invite.user_id, f'Seu convite para <a href="tg://user?id={confirmation.user_id}">{invited_user.nome_completo} ({invited_user.username})</a> foi confirmado!', parse_mode="HTML")
         except Exception as e:
             print(f"Erro ao enviar mensagem para o usuário {invite.user_id}: {str(e)}")
     elif action == 'negar':
@@ -288,7 +288,7 @@ def handle_query(call):
         except:
             pass
         try:
-            bot.send_message(invite.user_id, f'O usuário <a href="tg://user?id={confirmation.user_id}">{invited_user.nome_completo} ({invited_user.username})</a> tentou utilizar o seu link de convite mas negou a confirmação!')
+            bot.send_message(invite.user_id, f'O usuário <a href="tg://user?id={confirmation.user_id}">{invited_user.nome_completo} ({invited_user.username})</a> tentou utilizar o seu link de convite mas negou a confirmação!', parse_mode="HTML")
         except Exception as e:
             print(f"Erro ao enviar mensagem para o usuário {invite.user_id}: {str(e)}")
 
