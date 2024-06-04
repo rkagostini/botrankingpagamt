@@ -119,7 +119,7 @@ def handle_manual_ranking(message):
         func.count(TelegramInvite.id).label('invite_count')
         ).join(TelegramInvite, TelegramUser.id == TelegramInvite.user_id) \
         .join(InviteConfirmation, TelegramInvite.id == InviteConfirmation.invite_id) \
-        .filter(InviteConfirmation.status == 'confirmada') \
+        .filter(InviteConfirmation.status == 'confirmado') \
         .group_by(TelegramUser.id, TelegramUser.nome_completo, TelegramUser.username) \
         .order_by(func.count(TelegramInvite.id).desc()) \
         .limit(5).all()
@@ -150,7 +150,7 @@ def send_leaderboard():
     func.count(TelegramInvite.id).label('invite_count')
     ).join(TelegramInvite, TelegramUser.id == TelegramInvite.user_id) \
     .join(InviteConfirmation, TelegramInvite.id == InviteConfirmation.invite_id) \
-    .filter(InviteConfirmation.status == 'confirmada') \
+    .filter(InviteConfirmation.status == 'confirmado') \
     .group_by(TelegramUser.id, TelegramUser.nome_completo, TelegramUser.username) \
     .order_by(func.count(TelegramInvite.id).desc()) \
     .limit(5).all()
@@ -246,7 +246,7 @@ def handle_query(call):
     invited_user = session.query(TelegramUser).filter_by(id=confirmation.user_id).first()
 
     # Verificar se já existe uma confirmação efetivada para este usuário
-    existing_confirmation = session.query(InviteConfirmation).filter_by(user_id=confirmation.user_id, status='confirmada').first()
+    existing_confirmation = session.query(InviteConfirmation).filter_by(user_id=confirmation.user_id, status='confirmado').first()
     if existing_confirmation:
         try:
             bot.answer_callback_query(call.id, "Você já confirmou um convite anteriormente! Cada usuário pode confirmar apenas um convite.")
@@ -263,7 +263,7 @@ def handle_query(call):
         return
 
     if action == 'confirmar':
-        confirmation.status = 'confirmada'
+        confirmation.status = 'confirmado'
         try:
             bot.answer_callback_query(call.id, "Vínculo confirmado!\n\nQue tal você mesmo gerar seu link de convite para você participar também? Utilize o comando /gerar!")
         except:
@@ -282,7 +282,7 @@ def handle_query(call):
         except Exception as e:
             print(f"Erro ao enviar mensagem para o usuário {invite.user_id}: {str(e)}")
     elif action == 'negar':
-        confirmation.status = 'negada'
+        confirmation.status = 'negado'
         try:
             bot.answer_callback_query(call.id, "Vínculo negado! Você pode tentar novamente com outro link de convite.")
         except:
